@@ -1,0 +1,72 @@
+version: '3'
+name: inception
+
+services:
+  mariadb:
+    image: mariadb
+    build:
+      context: ./requirements/mariadb
+      args:
+        - WORDPRESS_DATABASE
+        - WORDPRESS_USER
+        - WORDPRESS_PASSWORD
+    container_name: mariadb
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - inception-network
+    ports:
+      - "3306:3306"
+    restart:
+      always
+
+  wordpress:
+    image: wordpress
+    build:
+      context: ./requirements/wordpress
+      args:
+        - WORDPRESS_DATABASE
+        - WORDPRESS_USER
+        - WORDPRESS_PASSWORD
+    container_name: wordpress
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception-network
+    ports:
+      - "9000:9000"
+    restart:
+      always
+    depends_on:
+      - mariadb
+  
+  nginx:
+    image: nginx
+    build:
+      context: ./requirements/nginx
+    container_name: nginx
+    networks:
+      - inception-network
+    ports:
+      - "443:443"
+    restart:
+      always
+    depends_on:
+      - mariadb
+      - wordpress
+
+networks:
+  inception-network:
+    driver: bridge
+
+volumes:
+  mariadb:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/dofranci/data/mariadb
+  wordpress:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/dofranci/data/wordpress

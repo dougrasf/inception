@@ -1,0 +1,11 @@
+#create local data directories
+mkdir /home/$USER/data/mariadb
+mkdir /home/$USER/data/wordpress
+
+#create .env file in the same directory of docker-compose.yml
+echo "WORDPRESS_DATABASE=wordpress_db
+WORDPRESS_USER=wordpress_user
+WORDPRESS_PASSWORD=wordpress_password" >> .env
+
+#to connect on database by wordpress container use a command
+mariadb -u $DATABASE_USERNAME -p -h $DBCONTAINER_NAME
