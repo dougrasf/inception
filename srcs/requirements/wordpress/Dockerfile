@@ -12,20 +12,23 @@ RUN apt update -y && apt upgrade -y && apt install -y \
 	mariadb-client -y \
 	wget
 
-RUN chown -R www-data:www-data /var/www/html/
-RUN chmod -R 777 /var/www/html/
-
 RUN sed -i.default "/^listen\s=.*/c\listen = 0.0.0.0:9000" \
 	/etc/php/[0-9]*.[0-9]*/fpm/pool.d/www.conf
 
-COPY tools/wordpress.sh /var/www/html/
+RUN wget https://wordpress.org/latest.tar.gz && \
+	tar -xzf latest.tar.gz && \
+	mv wordpress/* . && \
+	rm -rf wordpress && \
+	rm -rf latest.tar.gz
 
-RUN chmod 777 wordpress.sh && ./wordpress.sh && rm wordpress.sh
+RUN sed -i "s/database_name_here/$WORDPRESS_DATABASE/g" wp-config-sample.php && \
+	sed -i "s/username_here/$WORDPRESS_USER/g" wp-config-sample.php && \
+	sed -i "s/password_here/$WORDPRESS_PASSWORD/g" wp-config-sample.php && \
+	sed -i "s/localhost/mariadb/g" wp-config-sample.php && \
+	cp wp-config-sample.php wp-config.php
 
 RUN mkdir -p /run/php
 
 RUN ln -s $(find /usr/sbin -name 'php-fpm*') /usr/bin/php-fpm
-
-EXPOSE 9000
 
 CMD ["php-fpm", "-F"]

@@ -1,4 +1,3 @@
-version: '3'
 name: inception
 
 services:
@@ -14,9 +13,9 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
     networks:
-      - inception-network
+      - network
     ports:
-      - "3306:3306"
+      - 3306:3306
     restart:
       always
 
@@ -32,9 +31,9 @@ services:
     volumes:
       - wordpress:/var/www/html
     networks:
-      - inception-network
+      - network
     ports:
-      - "9000:9000"
+      - 9000:9000
     restart:
       always
     depends_on:
@@ -45,10 +44,12 @@ services:
     build:
       context: ./requirements/nginx
     container_name: nginx
+    volumes:
+      - wordpress:/var/www/html
     networks:
-      - inception-network
+      - network
     ports:
-      - "443:443"
+      - 443:443
     restart:
       always
     depends_on:
@@ -56,7 +57,7 @@ services:
       - wordpress
 
 networks:
-  inception-network:
+  network:
     driver: bridge
 
 volumes:

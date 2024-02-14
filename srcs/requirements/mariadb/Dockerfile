@@ -10,14 +10,15 @@ RUN echo "[mysqld] \n\
 skip-networking=0 \n\
 bind-address = 0.0.0.0" >> /etc/mysql/my.cnf
 
+COPY ./tools/dump.sql /tmp/dump.sql
+
 RUN service mariadb start && \
 	mariadb -u root -e \
 	"CREATE DATABASE IF NOT EXISTS $WORDPRESS_DATABASE; \
 	CREATE USER '$WORDPRESS_USER'@'%' identified by '$WORDPRESS_PASSWORD'; \
 	GRANT ALL ON $WORDPRESS_DATABASE.* TO '$WORDPRESS_USER'@'%' IDENTIFIED BY '$WORDPRESS_PASSWORD'; \
 	FLUSH PRIVILEGES;" && \
+	mariadb -u root $WORDPRESS_DATABASE < /tmp/dump.sql && \
 	service mariadb stop
-
-EXPOSE 3306
 
 CMD ["mysqld_safe"]
