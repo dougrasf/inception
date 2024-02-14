@@ -31,4 +31,6 @@ RUN mkdir -p /run/php
 
 RUN ln -s $(find /usr/sbin -name 'php-fpm*') /usr/bin/php-fpm
 
+EXPOSE 9000
+
 CMD ["php-fpm", "-F"]
